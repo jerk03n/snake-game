@@ -59,19 +59,26 @@ public class GamePanel extends JPanel implements ActionListener{
         applesEaten = 0;
         direction = 'R';
 
+        for(int i = 0; i < gameUnits; i++){
+            x[i] = 0;;
+            y[i] = 0;
+        }
+
+        respawnEnemy();
+
+        repaint();
+        startGame();
+    }
+
+    public void respawnEnemy(){
         enemyParts = 3;
         enemyDirection = 'L';
         isAlive = true;
 
         for(int i = 0; i < gameUnits; i++){
-            x[i] = 0;;
-            y[i] = 0;
             enemyX[i] = 0;;
             enemyY[i] = 0;
         }
-
-        repaint();
-        startGame();
     }
 
     public void paintComponent(Graphics g){
@@ -342,6 +349,11 @@ public class GamePanel extends JPanel implements ActionListener{
             checkCollisions();
             checkEnemyCollisions();
         }
+
+        if(!isAlive){
+            respawnEnemy();
+        }
+
         repaint();
     }
 
