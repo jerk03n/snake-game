@@ -2,18 +2,22 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class ModeSelectFrame extends JFrame{
+public class ModeSelectFrame extends JFrame {
     private JButton withEnemyButton;
     private JButton withoutEnemyButton;
     private GameFrame gameFrame;
-
+    Image background;
+    
     public ModeSelectFrame() {
         setTitle("Select Game Mode");
         setSize(600, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new GridBagLayout());
         setLocationRelativeTo(null);
-        getContentPane().setBackground(Color.black);
+
+        background = new ImageIcon(getClass().getResource("/images/background.png")).getImage();
+        setContentPane(new BackgroundPanel(background));
+
+        setLayout(new GridBagLayout());
 
         withoutEnemyButton = new JButton("Easy");
         withEnemyButton = new JButton("Hard");
@@ -21,7 +25,7 @@ public class ModeSelectFrame extends JFrame{
         withoutEnemyButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                gameFrame = new GameFrame(false); 
+                gameFrame = new GameFrame(false);
                 dispose();
             }
         });
@@ -29,21 +33,37 @@ public class ModeSelectFrame extends JFrame{
         withEnemyButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                gameFrame = new GameFrame(true); 
-                dispose(); 
+                gameFrame = new GameFrame(true);
+                dispose();
             }
         });
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
+        gbc.insets = new Insets(10, 0, 10, 0);
+
         gbc.gridy = 0;
-        gbc.insets = new Insets(10, 0, 10, 0); 
         add(withoutEnemyButton, gbc);
 
         gbc.gridy = 1;
         add(withEnemyButton, gbc);
 
-
         setVisible(true);
+    }
+
+    private class BackgroundPanel extends JPanel {
+        private Image backgroundImage;
+
+        public BackgroundPanel(Image image) {
+            this.backgroundImage = image;
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            if (backgroundImage != null) {
+                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+            }
+        }
     }
 }

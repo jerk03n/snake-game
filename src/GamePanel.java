@@ -16,29 +16,36 @@ public class GamePanel extends JPanel implements ActionListener{
     boolean withEnemy;
     Timer timer;
     Random random;
+    Image background;
 
     final int x[] = new int[gameUnits];
     final int y[] = new int[gameUnits];
     int bodyParts = 3;
     int applesEaten = 0;
     char direction = 'R';
+    Image head;
 
     final int enemyX[] = new int[gameUnits];
     final int enemyY[] = new int[gameUnits];
     int enemyParts = 3;
     char enemyDirection = 'L';
     boolean isAlive = true;
+    Image enemyHead;
 
     int mouseX;
     int mouseY;
+    Image mouse;
 
     GamePanel(boolean withEnemy){
         this.withEnemy = withEnemy;
         random = new Random();
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
-        this.setBackground(Color.black);
         this.setFocusable(true);
         this.addKeyListener(new MyKeyAdapter());
+        head = new ImageIcon(getClass().getResource("/images/head.png")).getImage();
+        enemyHead = new ImageIcon(getClass().getResource("/images/enemyHead.png")).getImage();
+        mouse = new ImageIcon(getClass().getResource("/images/mouse.png")).getImage();
+        background = new ImageIcon(getClass().getResource("/images/background.png")).getImage();
         startGame();
     }
 
@@ -89,18 +96,19 @@ public class GamePanel extends JPanel implements ActionListener{
 
     public void paintComponent(Graphics g){
         super.paintComponent(g);
+        if (background != null){
+            g.drawImage(background, 0, 0, getWidth(), getHeight(), this);
+        }
         draw(g);
     }
 
     public void draw(Graphics g){
        if(running){
-            g.setColor(Color.GRAY);
-            g.fillRect(mouseX, mouseY, unitSize, unitSize);
+            g.drawImage(mouse, mouseX, mouseY, unitSize, unitSize, this);;
 
             for(int i = 0; i < bodyParts; i++){
                 if(i == 0){
-                    g.setColor(Color.green);
-                    g.fillRect(x[i], y[i], unitSize, unitSize);
+                    g.drawImage(head, x[0], y[0], unitSize, unitSize, this);
                 }else{
                     g.setColor(new Color(181, 230, 29));
                     g.fillRect(x[i], y[i], unitSize, unitSize);
@@ -110,8 +118,7 @@ public class GamePanel extends JPanel implements ActionListener{
             if(isAlive && withEnemy){
                 for(int i = 0; i < enemyParts; i++){
                     if(i == 0){
-                        g.setColor(Color.yellow);
-                        g.fillRect(enemyX[i], enemyY[i], unitSize, unitSize);
+                        g.drawImage(enemyHead, enemyX[0], enemyY[0], unitSize, unitSize, this);
                     }else{
                         g.setColor(new Color(255, 242, 0));
                         g.fillRect(enemyX[i], enemyY[i], unitSize, unitSize);
