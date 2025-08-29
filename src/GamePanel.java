@@ -13,6 +13,7 @@ public class GamePanel extends JPanel implements ActionListener{
     static final int gameUnits = (screenHeight * screenWidth) / unitSize;
     static final int delay = 75;
     boolean running = false;
+    boolean withEnemy;
     Timer timer;
     Random random;
 
@@ -31,7 +32,8 @@ public class GamePanel extends JPanel implements ActionListener{
     int mouseX;
     int mouseY;
 
-    GamePanel(){
+    GamePanel(boolean withEnemy){
+        this.withEnemy = withEnemy;
         random = new Random();
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
         this.setBackground(Color.black);
@@ -44,8 +46,10 @@ public class GamePanel extends JPanel implements ActionListener{
         newMouse();
         running = true;
         isAlive = true;
-        enemyX[0] = screenWidth - unitSize;
-        enemyY[0] = 0;
+        if(withEnemy){
+            enemyX[0] = screenWidth - unitSize;
+            enemyY[0] = 0;
+        }
         timer = new Timer(delay, this);
         timer.start();
     }
@@ -64,7 +68,9 @@ public class GamePanel extends JPanel implements ActionListener{
             y[i] = 0;
         }
 
-        respawnEnemy();
+        if(withEnemy){
+            respawnEnemy();
+        }
 
         repaint();
         startGame();
@@ -101,7 +107,7 @@ public class GamePanel extends JPanel implements ActionListener{
                 }
             }
 
-            if(isAlive == true){
+            if(isAlive && withEnemy){
                 for(int i = 0; i < enemyParts; i++){
                     if(i == 0){
                         g.setColor(Color.yellow);
@@ -146,6 +152,10 @@ public class GamePanel extends JPanel implements ActionListener{
     }
 
     public void moveEnemy(){
+        if(!withEnemy){
+            return;
+        }
+
         for(int i = enemyParts; i > 0; i--){
             enemyX[i] = enemyX[i-1];
             enemyY[i] = enemyY[i-1];
@@ -323,7 +333,6 @@ public class GamePanel extends JPanel implements ActionListener{
                 isAlive = false;
             }
         }
-		
     }
 
     public void gameOver(Graphics g){
@@ -338,7 +347,6 @@ public class GamePanel extends JPanel implements ActionListener{
 		FontMetrics metrics2 = getFontMetrics(g.getFont());
 		g.drawString("Game Over", (screenWidth - metrics2.stringWidth("Game Over")) / 2, screenHeight/2);
     }
-
     
     @Override
     public void actionPerformed(ActionEvent e){
