@@ -41,6 +41,24 @@ public class GamePanel extends JPanel implements ActionListener{
         timer.start();
     }
 
+    public void restartGame(){
+        if(timer != null){
+            timer.stop();
+        }
+
+        bodyParts = 3;
+        applesEaten = 0;
+        direction = 'R';
+
+        for(int i = 0; i < gameUnits; i++){
+            x[i] = 0;;
+            y[i] = 0;
+        }
+
+        repaint();
+        startGame();
+    }
+
     public void paintComponent(Graphics g){
         super.paintComponent(g);
         draw(g);
@@ -180,6 +198,11 @@ public class GamePanel extends JPanel implements ActionListener{
                 case KeyEvent.VK_DOWN:
                     if(direction != 'U') {
                         direction = 'D';
+                    }
+                    break;
+                case KeyEvent.VK_SPACE:
+                    if(!running) {
+                       restartGame();
                     }
                     break;
                 }
