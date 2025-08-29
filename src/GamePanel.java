@@ -45,6 +45,7 @@ public class GamePanel extends JPanel implements ActionListener{
         running = true;
         isAlive = true;
         enemyX[0] = screenWidth - unitSize;
+        enemyY[0] = 0;
         timer = new Timer(delay, this);
         timer.start();
     }
@@ -58,7 +59,7 @@ public class GamePanel extends JPanel implements ActionListener{
         applesEaten = 0;
         direction = 'R';
 
-        bodyParts = 3;
+        enemyParts = 3;
         enemyDirection = 'L';
         isAlive = true;
 
@@ -143,6 +144,8 @@ public class GamePanel extends JPanel implements ActionListener{
             enemyY[i] = enemyY[i-1];
         }
 
+        chooseDirection();
+
         switch(enemyDirection){
             case 'U':
                 enemyY[0] = enemyY[0] - unitSize;
@@ -159,9 +162,85 @@ public class GamePanel extends JPanel implements ActionListener{
         }
     }
 
+    public boolean isDirectionSafe(int x, int y){
+        for(int i = 1; i < enemyParts; i++){
+            if(enemyX[i] == x && enemyY[i] == y){
+                return false;
+            }
+        }
+
+        for(int i = 0; i < bodyParts; i++){
+            if(this.x[i] == x && this.y[i] == y){
+                return false;
+            }
+        }
+    
+        if(x < 0 || x >= screenWidth || y < 0 || y >= screenHeight){
+            return false;
+        }
+    
+        return true;
+    }
+
+    public void chooseDirection(){
+        char[] directions = {'U', 'D', 'L', 'R'};
+        int bestDistance = Integer.MAX_VALUE;
+        char bestDirection = enemyDirection;
+
+        for(char dir: directions){
+            int newX = enemyX[0];
+            int newY = enemyY[0];
+
+            switch(dir){
+                case 'U': 
+                    newY -= unitSize; 
+                    break;
+                case 'D': 
+                    newY += unitSize; 
+                    break;
+                case 'L': 
+                    newX -= unitSize; 
+                    break;
+                case 'R': 
+                    newX += unitSize; 
+                    break;
+            }
+
+            if(isDirectionSafe(newX, newY)){
+                int dist = Math.abs(mouseX - newX) + Math.abs(mouseY - newY);
+                if(dist < bestDistance){
+                    bestDistance = dist;
+                    bestDirection = dir;
+                }
+            }
+        }
+
+        enemyDirection = bestDirection;
+    }
+
     public void newMouse(){
-        mouseX = random.nextInt((int)(screenWidth / unitSize)) * unitSize;
-        mouseY = random.nextInt((int)(screenHeight / unitSize)) * unitSize;
+        boolean validPos = false;
+        
+        while(!validPos){
+            mouseX = random.nextInt((int)(screenWidth / unitSize)) * unitSize;
+            mouseY = random.nextInt((int)(screenHeight / unitSize)) * unitSize;
+
+            validPos = true;
+
+            for (int i = 0; i < bodyParts; i++) {
+                if (x[i] == mouseX && y[i] == mouseY) {
+                    validPos = false;
+                    break;
+                }
+            }
+
+            for (int i = 0; i < enemyParts; i++) {
+                if (enemyX[i] == mouseX && enemyY[i] == mouseY) {
+                    validPos = false;
+                    break;
+                }
+            }
+        }
     }
 
     public void checkMouse(){
@@ -169,7 +248,7 @@ public class GamePanel extends JPanel implements ActionListener{
 			bodyParts++;
 			applesEaten++;
 			newMouse();
-		}else if(x[0] == mouseX && y[0] == mouseY){
+		}else if(enemyX[0] == mouseX && enemyY[0] == mouseY){
             enemyParts++;
             newMouse();
         }
@@ -197,6 +276,12 @@ public class GamePanel extends JPanel implements ActionListener{
 		if(y[0] > screenHeight) {
 			running = false;
 		}
+
+        for(int i = 0; i < enemyParts; i++){
+            if(x[0] == enemyX[i] && y[0] == enemyY[i]){
+                running = false;
+            }
+        }
 		
 		if(!running) {
 			timer.stop();
@@ -225,6 +310,12 @@ public class GamePanel extends JPanel implements ActionListener{
 		if(enemyY[0] > screenHeight) {
 			isAlive = false;
 		}
+
+        for(int i = 0; i < bodyParts; i++){
+            if(enemyX[0] == x[i] && enemyY[0] == y[i]){
+                isAlive = false;
+            }
+        }
 		
     }
 
