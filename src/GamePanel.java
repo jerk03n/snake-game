@@ -22,6 +22,12 @@ public class GamePanel extends JPanel implements ActionListener{
     int applesEaten = 0;
     char direction = 'R';
 
+    final int enemyX[] = new int[gameUnits];
+    final int enemyY[] = new int[gameUnits];
+    int enemyParts = 3;
+    char enemyDirection = 'L';
+    boolean isAlive = true;
+
     int mouseX;
     int mouseY;
 
@@ -37,6 +43,8 @@ public class GamePanel extends JPanel implements ActionListener{
     public void startGame(){
         newMouse();
         running = true;
+        isAlive = true;
+        enemyX[0] = screenWidth - unitSize;
         timer = new Timer(delay, this);
         timer.start();
     }
@@ -50,9 +58,15 @@ public class GamePanel extends JPanel implements ActionListener{
         applesEaten = 0;
         direction = 'R';
 
+        bodyParts = 3;
+        enemyDirection = 'L';
+        isAlive = true;
+
         for(int i = 0; i < gameUnits; i++){
             x[i] = 0;;
             y[i] = 0;
+            enemyX[i] = 0;;
+            enemyY[i] = 0;
         }
 
         repaint();
@@ -76,6 +90,18 @@ public class GamePanel extends JPanel implements ActionListener{
                 }else{
                     g.setColor(new Color(181, 230, 29));
                     g.fillRect(x[i], y[i], unitSize, unitSize);
+                }
+            }
+
+            if(isAlive == true){
+                for(int i = 0; i < enemyParts; i++){
+                    if(i == 0){
+                        g.setColor(Color.yellow);
+                        g.fillRect(enemyX[i], enemyY[i], unitSize, unitSize);
+                    }else{
+                        g.setColor(new Color(255, 242, 0));
+                        g.fillRect(enemyX[i], enemyY[i], unitSize, unitSize);
+                    }
                 }
             }
 
@@ -111,6 +137,28 @@ public class GamePanel extends JPanel implements ActionListener{
         }
     }
 
+    public void moveEnemy(){
+        for(int i = enemyParts; i > 0; i--){
+            enemyX[i] = enemyX[i-1];
+            enemyY[i] = enemyY[i-1];
+        }
+
+        switch(enemyDirection){
+            case 'U':
+                enemyY[0] = enemyY[0] - unitSize;
+                break;
+            case 'D':
+                enemyY[0] = enemyY[0] + unitSize;
+                break;
+            case 'L':
+                enemyX[0] = enemyX[0] - unitSize;
+                break;
+            case 'R':
+                enemyX[0] = enemyX[0] + unitSize;
+                break;
+        }
+    }
+
     public void newMouse(){
         mouseX = random.nextInt((int)(screenWidth / unitSize)) * unitSize;
         mouseY = random.nextInt((int)(screenHeight / unitSize)) * unitSize;
@@ -121,7 +169,10 @@ public class GamePanel extends JPanel implements ActionListener{
 			bodyParts++;
 			applesEaten++;
 			newMouse();
-		}
+		}else if(x[0] == mouseX && y[0] == mouseY){
+            enemyParts++;
+            newMouse();
+        }
     }
 
     public void checkCollisions(){
@@ -152,6 +203,31 @@ public class GamePanel extends JPanel implements ActionListener{
 		}
     }
 
+    public void checkEnemyCollisions(){
+		for(int i = enemyParts; i > 0; i--) {
+			if(enemyX[0] == enemyX[i] && enemyY[0] == enemyY[i]) {
+				isAlive = false;
+			}
+		}
+		
+		if(enemyX[0] < 0) {
+			isAlive = false;
+		}
+	
+		if(enemyX[0] > screenWidth) {
+			isAlive = false;
+		}
+		
+		if(enemyY[0] < 0) {
+			isAlive = false;
+		}
+		
+		if(enemyY[0] > screenHeight) {
+			isAlive = false;
+		}
+		
+    }
+
     public void gameOver(Graphics g){
 		g.setColor(Color.yellow);
 		g.setFont( new Font("Comic Sans",Font.BOLD, 40));
@@ -170,8 +246,10 @@ public class GamePanel extends JPanel implements ActionListener{
     public void actionPerformed(ActionEvent e){
         if(running){
             move();
+            moveEnemy();
             checkMouse();
             checkCollisions();
+            checkEnemyCollisions();
         }
         repaint();
     }
